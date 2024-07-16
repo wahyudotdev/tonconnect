@@ -1,12 +1,12 @@
 module github.com/cameo-engineering/tonconnect
 
-go 1.21.5
+go 1.22.5
 
 require (
 	github.com/kevinburke/nacl v0.0.0-20210405173606-cd9060f5f776
-	github.com/tmaxmax/go-sse v0.7.0
-	golang.org/x/exp v0.0.0-20231226003508-02704c960a9b
-	golang.org/x/sync v0.5.0
+	github.com/tmaxmax/go-sse v0.8.0
+	golang.org/x/exp v0.0.0-20240707233637-46b078467d37
+	golang.org/x/sync v0.7.0
 )
 
 require (

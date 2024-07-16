@@ -34,6 +34,50 @@ type bridgeMessageOptions struct {
 
 type bridgeMessageOption = func(*bridgeMessageOptions)
 
+func (s *Session) MarshalJSON() ([]byte, error) {
+	type Alias Session
+	return json.Marshal(&struct {
+		ID         string `json:"id"`
+		PrivateKey string `json:"private_key"`
+		ClientID   string `json:"client_id,omitempty"`
+		*Alias
+	}{
+		ID:         keyToBase64(s.ID),
+		PrivateKey: keyToBase64(s.PrivateKey),
+		ClientID:   keyToBase64(s.ClientID),
+		Alias:      (*Alias)(s),
+	})
+}
+
+func (s *Session) UnmarshalJSON(data []byte) error {
+	type Alias Session
+	aux := &struct {
+		ID         string `json:"id"`
+		PrivateKey string `json:"private_key"`
+		ClientID   string `json:"client_id,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+	var err error
+	s.ID, err = base64ToKey(aux.ID)
+	if err != nil {
+		return err
+	}
+	s.PrivateKey, err = base64ToKey(aux.PrivateKey)
+	if err != nil {
+		return err
+	}
+	s.ClientID, err = base64ToKey(aux.ClientID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewSession() (*Session, error) {
 	id, pk, err := box.GenerateKey(rand.Reader)
 	if err != nil {
@@ -175,6 +219,29 @@ func (s *Session) decrypt(from string, msg []byte, v any) (nacl.Key, error) {
 	}
 
 	return clientID, nil
+}
+
+func keyToBase64(key nacl.Key) string {
+	if key == nil {
+		return ""
+	}
+	return base64.StdEncoding.EncodeToString(key[:])
+}
+
+func base64ToKey(b64key string) (nacl.Key, error) {
+	if len(b64key) != 44 {
+		return nil, fmt.Errorf("incorrect base64 key length: %d, should be 44", len(b64key))
+	}
+	keyBytes, err := base64.StdEncoding.DecodeString(b64key)
+	if err != nil {
+		return nil, err
+	}
+	if len(keyBytes) != nacl.KeySize {
+		return nil, fmt.Errorf("incorrect key length: %d", len(keyBytes))
+	}
+	key := new([nacl.KeySize]byte)
+	copy(key[:], keyBytes)
+	return key, nil
 }
 
 func WithTTL(ttl uint64) bridgeMessageOption {

@@ -31,6 +31,21 @@ var Wallets = map[string]Wallet{
 		UniversalURL: "https://tonhub.com/ton-connect",
 		BridgeURL:    "https://connect.tonhubapi.com/tonconnect",
 	},
+	"dewallet": {
+		Name:         "DeWallet",
+		UniversalURL: "https://t.me/dewallet?attach=wallet",
+		BridgeURL:    "https://sse-bridge.delab.team/bridge",
+	},
+	"bitgetTonWallet": {
+		Name:         "Bitget Wallet",
+		UniversalURL: "https://bkcode.vip/ton-connect",
+		BridgeURL:    "https://bridge.tonapi.io/bridge",
+	},
+	"safepalwallet": {
+		Name:         "SafePal",
+		UniversalURL: "https://link.safepal.io/ton-connect",
+		BridgeURL:    "https://ton-bridge.safepal.com/tonbridge/v1/bridge",
+	},
 }
 
 func getBridgeURLs(wallets ...Wallet) []string {
